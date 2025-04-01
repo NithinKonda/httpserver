@@ -72,19 +72,20 @@ impl RequestHandler for EchoHandler {
 
 struct HTTPHandler;
 
-impl RequestHandler for HTTPHandler {
-    fn handle_request(&self, data: &[u8]) -> Vec<u8> {
-
-        let response_line = b"HTTP/1.1 200 OK\r\n";
-        let blank_line = b"\r\n";
-        let response_body = b"Request received!";
-
-        let mut response = Vec::new();
-        response.extend_from_slice(response_line);
-        response.extend_from_slice(blank_line);
-        response.extend_from_slice(response_body);
+impl HTTPHandler {
+    fn new() -> Self {
+        let mut headers = std::collections::HashMap::new();
+        headers.insert("Server".to_string(), "CrudeServer".to_string());
+        headers.insert("Content-Type".to_string(), "text/html".to_string());
         
-        response
+        let mut status_codes = std::collections::HashMap::new();
+        status_codes.insert(200, "OK".to_string());
+        status_codes.insert(404, "Not Found".to_string());
+        
+        HTTPHandler {
+            headers,
+            status_codes,
+        }
     }
 }
 
