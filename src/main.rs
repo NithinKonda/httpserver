@@ -2,6 +2,11 @@ use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 
 
+
+trait RequestHandler {
+    fn handle_request(&self, data : &[u8]) -> Vec<u8>;
+}
+
 struct TcpServer{
     host: String,
     port: u16,
