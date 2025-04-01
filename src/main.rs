@@ -14,7 +14,27 @@ impl TcpServer{
     }
 
     fn start(&self){
-        
+            let address = format!("{}:{}", self.host, self.port);
+
+            let listener = TcpListener::bind(&address)?;
+
+            println!("Listening in {}", address);
+
+
+            for stream in listener.incoming(){
+                match stream {
+                    Ok(stream) => {
+                        let peer_addr = stream.peer_addr()?;
+                        println!("Connection by {}", peer_addr);
+
+                        self.handle_client(stream)?;
+                    }
+                    Err(e) => {
+                        eprintln!("Error accepting connection: {}", e);
+                    }
+                }
+            }
+            Ok(())
     }
 }
 
