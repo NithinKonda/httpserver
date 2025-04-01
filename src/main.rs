@@ -146,6 +146,36 @@ impl RequestHandler for HTTPHandler {
     }
 }
 
+impl HTTPHandler {
+    // Handle GET requests
+    fn handle_GET(&self, request: &HTTPRequest) -> Vec<u8> {
+        // For now, just return a simple response
+        // We'll implement proper resource handling later
+        let response_line = self.response_line(200);
+        let response_headers = self.response_headers(None);
+        let blank_line = b"\r\n";
+        let response_body = br#"
+            <html>
+                <body>
+                    <h1>GET Request Received!</h1>
+                    <p>You requested: </p>
+                    <p>URI: </p>
+                </body>
+            </html>
+        "#;
+        
+        // Combine all parts into a single response
+        let mut response = Vec::new();
+        response.extend_from_slice(&response_line);
+        response.extend_from_slice(&response_headers);
+        response.extend_from_slice(blank_line);
+        response.extend_from_slice(response_body);
+        
+        response
+    }
+
+}
+
 fn main() -> std::io::Result<()> {
     let handler = HTTPHandler::new();
     let server = TCPServer::new("127.0.0.1".to_string(), 8888, handler);
