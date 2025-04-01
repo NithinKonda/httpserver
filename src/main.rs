@@ -174,6 +174,22 @@ impl HTTPHandler {
         response
     }
 
+    fn HTTP_501_handler(&self, request: &HTTPRequest) -> Vec<u8> {
+        let response_line = self.response_line(501);
+        let response_headers = self.response_headers(None);
+        let blank_line = b"\r\n";
+        let response_body = b"<h1>501 Not Implemented</h1>";
+        
+        // Combine all parts into a single response
+        let mut response = Vec::new();
+        response.extend_from_slice(&response_line);
+        response.extend_from_slice(&response_headers);
+        response.extend_from_slice(blank_line);
+        response.extend_from_slice(response_body);
+        
+        response
+    }
+
 }
 
 fn main() -> std::io::Result<()> {
