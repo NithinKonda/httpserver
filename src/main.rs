@@ -1,4 +1,4 @@
-// main.rs
+
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 
@@ -21,18 +21,17 @@ impl<T: RequestHandler> TCPServer<T> {
         let address = format!("{}:{}", self.host, self.port);
         
         let listener = TcpListener::bind(&address)?;
-
+        
         
         println!("Listening at {}", address);
         
-
+        // Accept connections and process them
         for stream in listener.incoming() {
             match stream {
                 Ok(stream) => {
                     let peer_addr = stream.peer_addr()?;
                     println!("Connected by {}", peer_addr);
                     
-
                     self.handle_client(stream)?;
                 }
                 Err(e) => {
@@ -45,32 +44,25 @@ impl<T: RequestHandler> TCPServer<T> {
     }
     
     fn handle_client(&self, mut stream: TcpStream) -> std::io::Result<()> {
-
         let mut buffer = [0; 1024];
         
         let bytes_read = stream.read(&mut buffer)?;
+        
         if bytes_read > 0 {
             let request_data = &buffer[0..bytes_read];
             let response = self.handler.handle_request(request_data);
             
             stream.write_all(&response)?;
         }
-
+        
         Ok(())
     }
-
 }
 
-struct EchoHandler;
-
-impl RequestHandler for EchoHandler {
-    fn handle_request(&self, data: &[u8]) -> Vec<u8> {
-        data.to_vec()
-    }
+struct HTTPHandler {
+    headers: std::collections::HashMap<String, String>,
+    status_codes: std::collections::HashMap<u16, String>,
 }
-
-
-struct HTTPHandler;
 
 impl HTTPHandler {
     fn new() -> Self {
@@ -87,22 +79,21 @@ impl HTTPHandler {
             status_codes,
         }
     }
-
+    
     fn response_line(&self, status_code: u16) -> Vec<u8> {
         let reason = self.status_codes.get(&status_code).unwrap_or(&"Unknown".to_string());
         format!("HTTP/1.1 {} {}\r\n", status_code, reason).into_bytes()
     }
-
+    
     fn response_headers(&self, extra_headers: Option<std::collections::HashMap<String, String>>) -> Vec<u8> {
-
         let mut headers_copy = self.headers.clone();
-
+        
         if let Some(extra) = extra_headers {
             for (key, value) in extra {
                 headers_copy.insert(key, value);
             }
         }
-
+        
         let mut result = Vec::new();
         for (header, value) in &headers_copy {
             let header_line = format!("{}: {}\r\n", header, value);
@@ -137,9 +128,9 @@ impl RequestHandler for HTTPHandler {
 }
 
 fn main() -> std::io::Result<()> {
-    let handler = HTTPHandler;
-
+    let handler = HTTPHandler::new();
+    
     let server = TCPServer::new("127.0.0.1".to_string(), 8888, handler);
-
+    
     server.start()
 }
