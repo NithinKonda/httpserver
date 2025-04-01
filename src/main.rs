@@ -87,6 +87,11 @@ impl HTTPHandler {
             status_codes,
         }
     }
+
+    fn response_line(&self, status_code: u16) -> Vec<u8> {
+        let reason = self.status_codes.get(&status_code).unwrap_or(&"Unknown".to_string());
+        format!("HTTP/1.1 {} {}\r\n", status_code, reason).into_bytes()
+    }
 }
 
 fn main() -> std::io::Result<()> {
