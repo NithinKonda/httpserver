@@ -68,11 +68,36 @@ struct HTTPRequest {
 
 
 impl HTTPRequest {
-    fn new() -> Self {
-        HTTPRequest {
+    fn new(data: &[u8]) -> Self {
+        let mut request = HTTPRequest {
             method: None,
             uri: None,
-            http_version: "HTTP/1.1".to_string(),
+            http_version: "1.1".to_string(),
+        };
+        
+        request.parse(data);
+        request
+    }
+
+    fn parse(&mut self, data: &[u8]) {
+        let data_str = String::from_utf8_lossy(data);
+        let lines: Vec<&str> = data_str.split("\r\n").collect();
+        
+        if !lines.is_empty() {
+            let request_line = lines[0];
+            let words: Vec<&str> = request_line.split(' ').collect();
+            
+            if !words.is_empty() {
+                self.method = Some(words[0].to_string());
+            }
+            
+            if words.len() > 1 {
+                self.uri = Some(words[1].to_string());
+            }
+            
+            if words.len() > 2 {
+                self.http_version = words[2].to_string();
+            }
         }
     }
 }
