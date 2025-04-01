@@ -113,9 +113,6 @@ This is a basic HTTP server intended for learning purposes:
 - No support for CGI or server-side processing
 - No security features
 
-## License
-
-This project is open source and available under the MIT License.
 
 ## Acknowledgments
 
