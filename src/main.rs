@@ -74,12 +74,11 @@ struct HTTPHandler;
 
 impl RequestHandler for HTTPHandler {
     fn handle_request(&self, data: &[u8]) -> Vec<u8> {
-        // Create a proper HTTP response
+
         let response_line = b"HTTP/1.1 200 OK\r\n";
         let blank_line = b"\r\n";
         let response_body = b"Request received!";
-        
-        // Combine all parts into a single response
+
         let mut response = Vec::new();
         response.extend_from_slice(response_line);
         response.extend_from_slice(blank_line);
@@ -90,7 +89,9 @@ impl RequestHandler for HTTPHandler {
 }
 
 fn main() -> std::io::Result<()> {
-    let handler = EchoHandler;
+    let handler = HTTPHandler;
+
     let server = TCPServer::new("127.0.0.1".to_string(), 8888, handler);
+
     server.start()
 }
