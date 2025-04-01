@@ -1,7 +1,7 @@
 
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-
+use std::collections::HashMap;
 trait RequestHandler {
     fn handle_request(&self, data: &[u8]) -> Vec<u8>;
 }
@@ -56,6 +56,24 @@ impl<T: RequestHandler> TCPServer<T> {
         }
         
         Ok(())
+    }
+}
+
+
+struct HTTPRequest {
+    method: Option<String>,
+    uri: Option<String>,
+    http_version: String,
+}
+
+
+impl HTTPRequest {
+    fn new() -> Self {
+        HTTPRequest {
+            method: None,
+            uri: None,
+            http_version: "HTTP/1.1".to_string(),
+        }
     }
 }
 
