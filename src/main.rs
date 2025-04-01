@@ -92,6 +92,25 @@ impl HTTPHandler {
         let reason = self.status_codes.get(&status_code).unwrap_or(&"Unknown".to_string());
         format!("HTTP/1.1 {} {}\r\n", status_code, reason).into_bytes()
     }
+
+    fn response_headers(&self, extra_headers: Option<std::collections::HashMap<String, String>>) -> Vec<u8> {
+
+        let mut headers_copy = self.headers.clone();
+
+        if let Some(extra) = extra_headers {
+            for (key, value) in extra {
+                headers_copy.insert(key, value);
+            }
+        }
+
+        let mut result = Vec::new();
+        for (header, value) in &headers_copy {
+            let header_line = format!("{}: {}\r\n", header, value);
+            result.extend_from_slice(header_line.as_bytes());
+        }
+        
+        result
+    }
 }
 
 fn main() -> std::io::Result<()> {
