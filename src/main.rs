@@ -97,6 +97,7 @@ impl HTTPHandler {
         let mut status_codes = HashMap::new();
         status_codes.insert(200, "OK".to_string());
         status_codes.insert(404, "Not Found".to_string());
+        status_codes.insert(501, "Not Implemented".to_string());
         HTTPHandler { headers, status_codes }
     }
     
@@ -121,36 +122,8 @@ impl HTTPHandler {
     }
 }
 
-impl RequestHandler for HTTPHandler {
-    fn handle_request(&self, data: &[u8]) -> Vec<u8> {
-        let request = HTTPRequest::new(data);
-        println!("Method: {:?}", request.method);
-        println!("URI: {:?}", request.uri);
-        println!("HTTP Version: {}", request.http_version);
-        let response_line = self.response_line(200);
-        let response_headers = self.response_headers(None);
-        let blank_line = b"\r\n";
-        let response_body = br#"
-            <html>
-                <body>
-                    <h1>Request received!</h1>
-                </body>
-            </html>
-        "#;
-        let mut response = Vec::new();
-        response.extend_from_slice(&response_line);
-        response.extend_from_slice(&response_headers);
-        response.extend_from_slice(blank_line);
-        response.extend_from_slice(response_body);
-        response
-    }
-}
-
 impl HTTPHandler {
-    // Handle GET requests
     fn handle_GET(&self, request: &HTTPRequest) -> Vec<u8> {
-        // For now, just return a simple response
-        // We'll implement proper resource handling later
         let response_line = self.response_line(200);
         let response_headers = self.response_headers(None);
         let blank_line = b"\r\n";
@@ -163,33 +136,39 @@ impl HTTPHandler {
                 </body>
             </html>
         "#;
-        
-        // Combine all parts into a single response
         let mut response = Vec::new();
         response.extend_from_slice(&response_line);
         response.extend_from_slice(&response_headers);
         response.extend_from_slice(blank_line);
         response.extend_from_slice(response_body);
-        
         response
     }
-
+    
     fn HTTP_501_handler(&self, request: &HTTPRequest) -> Vec<u8> {
         let response_line = self.response_line(501);
         let response_headers = self.response_headers(None);
         let blank_line = b"\r\n";
         let response_body = b"<h1>501 Not Implemented</h1>";
-        
-        // Combine all parts into a single response
         let mut response = Vec::new();
         response.extend_from_slice(&response_line);
         response.extend_from_slice(&response_headers);
         response.extend_from_slice(blank_line);
         response.extend_from_slice(response_body);
-        
         response
     }
+}
 
+impl RequestHandler for HTTPHandler {
+    fn handle_request(&self, data: &[u8]) -> Vec<u8> {
+        let request = HTTPRequest::new(data);
+        println!("Method: {:?}", request.method);
+        println!("URI: {:?}", request.uri);
+        println!("HTTP Version: {}", request.http_version);
+        match &request.method {
+            Some(method) if method == "GET" => self.handle_GET(&request),
+            _ => self.HTTP_501_handler(&request),
+        }
+    }
 }
 
 fn main() -> std::io::Result<()> {
