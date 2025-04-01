@@ -113,6 +113,29 @@ impl HTTPHandler {
     }
 }
 
+impl RequestHandler for HTTPHandler {
+    fn handle_request(&self, data: &[u8]) -> Vec<u8> {
+        let response_line = self.response_line(200);
+        let response_headers = self.response_headers(None);
+        let blank_line = b"\r\n";
+        let response_body = br#"
+            <html>
+                <body>
+                    <h1>Request received!</h1>
+                </body>
+            </html>
+        "#;
+        
+        let mut response = Vec::new();
+        response.extend_from_slice(&response_line);
+        response.extend_from_slice(&response_headers);
+        response.extend_from_slice(blank_line);
+        response.extend_from_slice(response_body);
+        
+        response
+    }
+}
+
 fn main() -> std::io::Result<()> {
     let handler = HTTPHandler;
 
