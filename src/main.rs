@@ -10,47 +10,16 @@ trait RequestHandler {
 struct TcpServer{
     host: String,
     port: u16,
+    handler: T,
 }
 
 
-impl TcpServer{
-    fn new(host:String, port :u16)->Self {
-        TcpServer { host, port }
+impl<T:RequestHandler> TcpServer<T>{
+    fn new(host: String, port: u16, handler: T) -> Self {
+        TCPServer { host, port, handler }
     }
 
-    fn start(&self) -> std::io::Result<()>{
-            let address = format!("{}:{}", self.host, self.port);
-
-            let listener = TcpListener::bind(&address)?;
-
-            println!("Listening in {}", address);
-
-
-            for stream in listener.incoming(){
-                match stream {
-                    Ok(stream) => {
-                        let peer_addr = stream.peer_addr()?;
-                        println!("Connection by {}", peer_addr);
-
-                        self.handle_client(stream)?;
-                    }
-                    Err(e) => {
-                        eprintln!("Error accepting connection: {}", e);
-                    }
-                }
-            }
-            Ok(())
-    }
-
-    fn handle_client(&self, mut stream: TcpStream) -> std::io::Result<()>{
-        let mut buffer = [0; 1024];
-        let bytes_read = stream.read(&mut buffer)?;
-
-        if bytes_read > 0 {
-            stream.write_all(&buffer[..bytes_read])?;
-        }
-        Ok(())
-    }
+    
 }
 
 
