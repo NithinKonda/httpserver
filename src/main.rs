@@ -50,5 +50,6 @@ impl TcpServer{
 
 
 fn main() {
-    println!("Hello, world!");
+    let server = TCPServer::new("127.0.0.1".to_string(), 8888);
+    server.start()
 }
