@@ -47,7 +47,13 @@ impl<T: RequestHandler> TCPServer<T> {
 
 }
 
+struct EchoHandler;
 
+impl RequestHandler for EchoHandler {
+    fn handle_request(&self, data: &[u8]) -> Vec<u8> {
+        data.to_vec()
+    }
+}
 
 fn main() -> std::io::Result<()> {
     let handler = EchoHandler;
