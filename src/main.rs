@@ -42,7 +42,7 @@ impl TcpServer{
         let bytes_read = stream.read(&mut buffer)?;
 
         if bytes_read > 0 {
-            srream.write_all(&buffer[..bytes_read])?;
+            stream.write_all(&buffer[..bytes_read])?;
         }
         Ok(())
     }
@@ -50,6 +50,6 @@ impl TcpServer{
 
 
 fn main() {
-    let server = TCPServer::new("127.0.0.1".to_string(), 8888);
-    server.start()
+    let server = TcpServer::new("127.0.0.1".to_string(), 8888);
+    server.start();
 }
