@@ -44,6 +44,20 @@ impl<T: RequestHandler> TCPServer<T> {
         Ok(())
     }
     
+    fn handle_client(&self, mut stream: TcpStream) -> std::io::Result<()> {
+
+        let mut buffer = [0; 1024];
+        
+        let bytes_read = stream.read(&mut buffer)?;
+        if bytes_read > 0 {
+            let request_data = &buffer[0..bytes_read];
+            let response = self.handler.handle_request(request_data);
+            
+            stream.write_all(&response)?;
+        }
+
+        Ok(())
+    }
 
 }
 
