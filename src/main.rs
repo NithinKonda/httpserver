@@ -13,7 +13,7 @@ impl TcpServer{
         TcpServer { host, port }
     }
 
-    fn start(&self){
+    fn start(&self) -> std::io::Result<()>{
             let address = format!("{}:{}", self.host, self.port);
 
             let listener = TcpListener::bind(&address)?;
